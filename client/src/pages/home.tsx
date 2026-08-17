@@ -1,10 +1,9 @@
 import { ArrowUpRight, CalendarDays, Flame, Play } from 'lucide-react';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { useAthleteHome } from '@/hooks/use-training';
 import { EmptyBlock, ErrorBlock, LoadingBlock, Metric, PageIntro } from '@/components/page-states';
 
 export default function HomePage() {
-  const [, setLocation] = useLocation();
   const homeQuery = useAthleteHome();
   const home = homeQuery.data;
 
@@ -76,7 +75,7 @@ export default function HomePage() {
 
       <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="stagger-in stagger-2">
-          <Metric label="Current streak" value={`${home.streakDays} days`} detail="Keep the chain alive" tone="orange" />
+          <Metric label="Current streak" value={`${home.streakDays} days`} detail="consistent training days" tone="orange" />
         </div>
         <div className="stagger-in stagger-3">
           <Metric label="Weekly volume" value={`${home.weeklyVolume.toLocaleString()} ${home.volumeUnit}`} detail="Last 7 days" tone="mint" />
@@ -132,15 +131,6 @@ export default function HomePage() {
             </p>
           </div>
         </section>
-      </div>
-      <div className="mt-7 flex justify-end">
-        <button
-          onClick={() => setLocation('/progress')}
-          data-testid="button-view-progress"
-          className="group inline-flex items-center gap-2 text-sm font-semibold text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]"
-        >
-          See your progress <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </button>
       </div>
     </div>
   );

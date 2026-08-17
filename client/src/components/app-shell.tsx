@@ -130,33 +130,37 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
             <p className="mt-1 text-xs text-[hsl(var(--sidebar-foreground)/.56)]">consistent training days</p>
           </div>
         </div>
-        <div className="mt-5 flex items-center gap-3 border-t border-[hsl(var(--sidebar-border))] pt-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-sm font-bold text-[hsl(var(--secondary-foreground))]">
-            {initialsFor(user.displayName)}
+        <div className="mt-5 border-t border-[hsl(var(--sidebar-border))] pt-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-sm font-bold text-[hsl(var(--secondary-foreground))]">
+              {initialsFor(user.displayName)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{user.displayName}</p>
+              <p className="truncate text-xs text-[hsl(var(--sidebar-foreground)/.56)]">{user.email}</p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{user.displayName}</p>
-            <p className="truncate text-xs text-[hsl(var(--sidebar-foreground)/.56)]">{user.email}</p>
+          <div className="mt-3 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              data-testid="button-toggle-theme"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]"
+            >
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={logout.isPending}
+              aria-label="Sign out"
+              data-testid="button-logout"
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))] disabled:opacity-50"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-            data-testid="button-toggle-theme"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]"
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-          <button
-            type="button"
-            onClick={handleLogout}
-            disabled={logout.isPending}
-            aria-label="Sign out"
-            data-testid="button-logout"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))] disabled:opacity-50"
-          >
-            <LogOut size={16} />
-          </button>
         </div>
       </aside>
 

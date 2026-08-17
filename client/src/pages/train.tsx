@@ -1,6 +1,5 @@
 import { ChevronDown, ChevronUp, CircleStop, Dumbbell, History, Plus, TimerReset } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useLocation } from 'wouter';
 import { useCompleteSession, useLogSet, useStartSession, useTodaySession } from '@/hooks/use-training';
 import { EmptyBlock, ErrorBlock, LoadingBlock, PageIntro, SavingLabel } from '@/components/page-states';
 
@@ -13,7 +12,6 @@ function formatStartedAt(value: string | null) {
 }
 
 export default function TrainPage() {
-  const [, setLocation] = useLocation();
   const todayQuery = useTodaySession();
   const startSession = useStartSession();
   const logSet = useLogSet();
@@ -247,16 +245,6 @@ export default function TrainPage() {
             </section>
           );
         })}
-      </div>
-      <div className="mt-7 flex items-center justify-between">
-        <Link href="/" data-testid="link-back-home" className="text-sm font-semibold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]">
-          ← Back to today
-        </Link>
-        {isComplete && (
-          <button onClick={() => setLocation('/progress')} data-testid="button-see-session-progress" className="text-sm font-bold text-[hsl(var(--primary))]">
-            See progress →
-          </button>
-        )}
       </div>
     </div>
   );
