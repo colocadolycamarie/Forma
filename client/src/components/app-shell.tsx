@@ -1,4 +1,4 @@
-import { BarChart3, Dumbbell, Home, LogOut, Menu, Moon, PersonStanding, Sun, X } from 'lucide-react';
+import { BarChart3, Dumbbell, Home, LogOut, Menu, Moon, PersonStanding, Sun, UsersRound, X } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import type { PublicUser } from '@forma/shared';
@@ -8,20 +8,23 @@ import { useTheme } from '@/hooks/use-theme';
 import { FormaMark } from '@/components/forma-mark';
 import { toast } from '@/hooks/use-toast';
 
-const navItems = [
+const athleteNavItems = [
   { href: '/', label: 'Today', icon: Home },
   { href: '/train', label: 'Train', icon: Dumbbell },
   { href: '/progress', label: 'Progress', icon: BarChart3 },
-  { href: '/coach', label: 'Coach view', icon: PersonStanding },
+  { href: '/coach', label: 'Your coach', icon: PersonStanding },
 ];
+
+const coachNavItems = [{ href: '/coach', label: 'Roster', icon: UsersRound }];
 
 function initialsFor(name: string): string {
   const parts = name.trim().split(/\s+/).slice(0, 2);
   return parts.map((part) => part[0]?.toUpperCase() ?? '').join('') || '?';
 }
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({ role, onNavigate }: { role: PublicUser['role']; onNavigate?: () => void }) {
   const [location] = useLocation();
+  const navItems = role === 'coach' ? coachNavItems : athleteNavItems;
   return (
     <nav className="space-y-2" aria-label="Primary navigation">
       {navItems.map(({ href, label, icon: Icon }) => {
@@ -51,7 +54,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 export function AppShell({ user, children }: { user: PublicUser; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [location] = useLocation();
-  const homeQuery = useAthleteHome();
+  const isAthlete = user.role === 'athlete';
+  const homeQuery = useAthleteHome({ enabled: isAthlete });
   const logout = useLogout();
   const { theme, toggleTheme } = useTheme();
   const menuPanelRef = useRef<HTMLDivElement>(null);
@@ -117,18 +121,20 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
         <FormaMark />
         <div className="mt-14 flex flex-1 flex-col">
           <p className="forma-mono mb-4 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[hsl(var(--sidebar-foreground)/.56)]">Your space</p>
-          <NavLinks />
-          <div className="mt-auto rounded-2xl border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-accent)/.58)] p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="forma-mono text-[10px] uppercase tracking-[.17em] text-[hsl(var(--sidebar-foreground)/.55)]">Current streak</span>
-              <span className="h-2 w-2 rounded-full bg-[hsl(var(--sidebar-primary))]" />
+          <NavLinks role={user.role} />
+          {isAthlete && (
+            <div className="mt-auto rounded-2xl border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar-accent)/.58)] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="forma-mono text-[10px] uppercase tracking-[.17em] text-[hsl(var(--sidebar-foreground)/.55)]">Current streak</span>
+                <span className="h-2 w-2 rounded-full bg-[hsl(var(--sidebar-primary))]" />
+              </div>
+              <p className="forma-display text-2xl font-semibold">
+                {homeQuery.data ? homeQuery.data.streakDays : '–'}
+                <span className="text-sm font-normal text-[hsl(var(--sidebar-foreground)/.56)]"> days</span>
+              </p>
+              <p className="mt-1 text-xs text-[hsl(var(--sidebar-foreground)/.56)]">consistent training days</p>
             </div>
-            <p className="forma-display text-2xl font-semibold">
-              {homeQuery.data ? homeQuery.data.streakDays : '–'}
-              <span className="text-sm font-normal text-[hsl(var(--sidebar-foreground)/.56)]"> days</span>
-            </p>
-            <p className="mt-1 text-xs text-[hsl(var(--sidebar-foreground)/.56)]">consistent training days</p>
-          </div>
+          )}
         </div>
         <div className="mt-5 border-t border-[hsl(var(--sidebar-border))] pt-5">
           <div className="flex items-center gap-3">
@@ -170,8 +176,13 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
             <Menu size={21} />
           </button>
           <FormaMark />
-          <Link href="/train" aria-label="Start training" data-testid="link-mobile-train" className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]">
-            <Dumbbell size={18} />
+          <Link
+            href={isAthlete ? '/train' : '/coach'}
+            aria-label={isAthlete ? 'Start training' : 'View roster'}
+            data-testid="link-mobile-train"
+            className="flex h-11 w-11 items-center justify-center rounded-lg bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
+          >
+            {isAthlete ? <Dumbbell size={18} /> : <UsersRound size={18} />}
           </Link>
         </header>
 
@@ -184,7 +195,7 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
               </button>
             </div>
             <div className="mt-14">
-              <NavLinks onNavigate={closeMenu} />
+              <NavLinks role={user.role} onNavigate={closeMenu} />
             </div>
             <div className="mt-8 space-y-2">
               <button

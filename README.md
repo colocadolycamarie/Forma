@@ -129,6 +129,10 @@ npm test
 
 It uses the same `DATABASE_URL` as `npm run dev` (from `server/.env`), so point it at a scratch/test database — the suite truncates all tables before each test.
 
+## Coaches and athletes
+
+There are two account roles, chosen at signup: **athlete** (a personal training log) and **coach** (a roster of athletes). A coach gets a unique code on their roster page; an athlete enters it under "Your coach" to connect. A coach then sees each connected athlete's real streak, weekly volume, and adherence — the same numbers the athlete sees themselves. Either side can disconnect at any time. A coach account has no training log of its own — signing up as a coach is specifically for people coaching others, not a mode you switch into.
+
 ## How a new athlete's data is generated
 
 There's no demo data. On first login, "today's session" is created on demand: it repeats the athlete's most recent program if they have one, or starts from the top of the shared exercise catalog if they don't. Every dashboard number — streak, weekly volume, adherence, the consistency heatmap, and the weekly insight — is computed from that athlete's own logged sets. See `server/src/services/dashboard.service.ts` and `server/src/services/workout.service.ts`.

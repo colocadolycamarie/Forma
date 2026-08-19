@@ -6,10 +6,14 @@ export const passwordSchema = z
   .min(8, "Password must be at least 8 characters")
   .max(72, "Password must be under 72 characters");
 
+export const userRoleSchema = z.enum(["athlete", "coach"]);
+export type UserRole = z.infer<typeof userRoleSchema>;
+
 export const signupInputSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   displayName: z.string().trim().min(1, "Enter your name").max(80),
+  role: userRoleSchema.default("athlete"),
 });
 export type SignupInput = z.infer<typeof signupInputSchema>;
 
@@ -23,6 +27,7 @@ export const publicUserSchema = z.object({
   id: z.string(),
   email: z.string(),
   displayName: z.string(),
+  role: userRoleSchema,
   createdAt: z.string(),
 });
 export type PublicUser = z.infer<typeof publicUserSchema>;

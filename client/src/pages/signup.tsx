@@ -1,6 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { signupInputSchema } from '@forma/shared';
+import { signupInputSchema, type UserRole } from '@forma/shared';
 import { useSignup } from '@/hooks/use-auth';
 import { AuthLayout, FieldLabel, PasswordField, authInputClass } from '@/components/auth-layout';
 import { ApiError } from '@/lib/api-client';
@@ -8,6 +8,7 @@ import { ApiError } from '@/lib/api-client';
 export default function SignupPage() {
   const [, navigate] = useLocation();
   const signup = useSignup();
+  const [role, setRole] = useState<UserRole>('athlete');
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +18,7 @@ export default function SignupPage() {
     event.preventDefault();
     setFormError(null);
 
-    const parsed = signupInputSchema.safeParse({ displayName, email, password });
+    const parsed = signupInputSchema.safeParse({ displayName, email, password, role });
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
       return;
@@ -45,6 +46,32 @@ export default function SignupPage() {
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <div>
+          <FieldLabel htmlFor="role-athlete">I'm signing up as</FieldLabel>
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="role-athlete">
+            {(['athlete', 'coach'] as const).map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                aria-checked={role === option}
+                id={option === 'athlete' ? 'role-athlete' : undefined}
+                onClick={() => setRole(option)}
+                data-testid={`button-role-${option}`}
+                className={`min-h-11 rounded-xl border text-sm font-semibold capitalize transition-colors ${
+                  role === option
+                    ? 'border-[hsl(var(--primary))] bg-[hsl(var(--primary)/.12)] text-[hsl(var(--foreground))]'
+                    : 'border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]'
+                }`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+          <p className="mt-1.5 text-xs text-[hsl(var(--muted-foreground))]">
+            {role === 'coach' ? "You'll get a code to share with athletes so they can connect to you." : 'You can connect to a coach later using their code.'}
+          </p>
+        </div>
         <div>
           <FieldLabel htmlFor="displayName">Name</FieldLabel>
           <input

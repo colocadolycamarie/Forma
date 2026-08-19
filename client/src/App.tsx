@@ -14,6 +14,7 @@ import HomePage from '@/pages/home';
 import TrainPage from '@/pages/train';
 import ProgressPage from '@/pages/progress';
 import CoachPage from '@/pages/coach';
+import RosterPage from '@/pages/roster';
 import NotFoundPage from '@/pages/not-found';
 
 const queryClient = new QueryClient({
@@ -45,13 +46,29 @@ function AuthenticatedApp() {
     <AuthGate>
       {(user) => (
         <AppShell user={user}>
-          <Switch>
-            <Route path="/" component={HomePage} />
-            <Route path="/train" component={TrainPage} />
-            <Route path="/progress" component={ProgressPage} />
-            <Route path="/coach" component={CoachPage} />
-            <Route component={NotFoundPage} />
-          </Switch>
+          {user.role === 'coach' ? (
+            <Switch>
+              <Route path="/coach" component={RosterPage} />
+              <Route path="/">
+                <Redirect to="/coach" />
+              </Route>
+              <Route path="/train">
+                <Redirect to="/coach" />
+              </Route>
+              <Route path="/progress">
+                <Redirect to="/coach" />
+              </Route>
+              <Route component={NotFoundPage} />
+            </Switch>
+          ) : (
+            <Switch>
+              <Route path="/" component={HomePage} />
+              <Route path="/train" component={TrainPage} />
+              <Route path="/progress" component={ProgressPage} />
+              <Route path="/coach" component={CoachPage} />
+              <Route component={NotFoundPage} />
+            </Switch>
+          )}
         </AppShell>
       )}
     </AuthGate>

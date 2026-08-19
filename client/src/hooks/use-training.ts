@@ -6,10 +6,11 @@ const HOME_KEY = ["dashboard", "home"] as const;
 const TODAY_SESSION_KEY = ["sessions", "today"] as const;
 const historyKey = (exerciseId: string) => ["exercises", exerciseId, "history"] as const;
 
-export function useAthleteHome() {
+export function useAthleteHome(options?: { enabled?: boolean }) {
   return useQuery<AthleteHome>({
     queryKey: HOME_KEY,
     queryFn: () => api.get<AthleteHome>("/athlete/home"),
+    enabled: options?.enabled ?? true,
   });
 }
 
