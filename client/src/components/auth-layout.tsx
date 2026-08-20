@@ -1,22 +1,25 @@
-import { useId, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { useId, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { FormaMark } from '@/components/forma-mark';
 
 export function AuthLayout({ title, subtitle, children, footer }: { title: string; subtitle: string; children: ReactNode; footer: ReactNode }) {
   return (
-    <div className="flex min-h-screen min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))] px-5 py-10">
-      <div className="w-full max-w-[420px]">
-        <div className="mb-8 flex justify-center">
-          <FormaMark />
-        </div>
-        <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 shadow-sm">
-          <div className="stagger-in mb-7">
-            <h1 className="forma-display text-2xl font-semibold tracking-[-.04em]">{title}</h1>
-            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">{subtitle}</p>
+    <div className="flex min-h-screen min-h-[100dvh] flex-col bg-[hsl(var(--background))]">
+      <header className="px-6 py-6 sm:px-10 sm:py-8">
+        <FormaMark size="lg" />
+      </header>
+      <div className="flex flex-1 items-center justify-center px-5 pb-10 pt-2 sm:pb-16">
+        <div className="w-full max-w-[420px]">
+          <div className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 shadow-sm">
+            <div className="stagger-in mb-7">
+              <h1 className="forma-display text-2xl font-semibold tracking-[-.04em]">{title}</h1>
+              <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">{subtitle}</p>
+            </div>
+            {children}
+            <p className="mt-6 border-t border-[hsl(var(--border))] pt-5 text-center text-sm text-[hsl(var(--muted-foreground))]">{footer}</p>
           </div>
-          {children}
         </div>
-        <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]">{footer}</p>
       </div>
     </div>
   );
