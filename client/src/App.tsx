@@ -7,7 +7,7 @@ import { ThemeProvider } from '@/hooks/use-theme';
 import { AppShell } from '@/components/app-shell';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
-import { LoadingBlock } from '@/components/page-states';
+import { SplashScreen } from '@/components/splash-screen';
 import LoginPage from '@/pages/login';
 import SignupPage from '@/pages/signup';
 import HomePage from '@/pages/home';
@@ -27,11 +27,7 @@ function AuthGate({ children }: { children: (user: PublicUser) => ReactNode }) {
   const { data: user, isLoading } = useCurrentUser();
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[100dvh] items-center justify-center bg-[hsl(var(--background))] p-6">
-        <LoadingBlock label="Loading Forma" />
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   if (!user) {
@@ -77,7 +73,7 @@ function AuthenticatedApp() {
 
 function GuestOnly({ children }: { children: ReactNode }) {
   const { data: user, isLoading } = useCurrentUser();
-  if (isLoading) return null;
+  if (isLoading) return <SplashScreen />;
   if (user) return <Redirect to="/" />;
   return <>{children}</>;
 }

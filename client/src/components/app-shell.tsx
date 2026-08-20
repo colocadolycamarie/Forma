@@ -1,4 +1,4 @@
-import { BarChart3, Dumbbell, Home, LogOut, Menu, Moon, PersonStanding, Sun, UsersRound, X } from 'lucide-react';
+import { BarChart3, ChevronUp, Dumbbell, Home, LogOut, Menu, Moon, PersonStanding, Sun, UsersRound, X } from 'lucide-react';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import type { PublicUser } from '@forma/shared';
@@ -53,6 +53,7 @@ function NavLinks({ role, onNavigate }: { role: PublicUser['role']; onNavigate?:
 
 export function AppShell({ user, children }: { user: PublicUser; children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [location] = useLocation();
   const isAthlete = user.role === 'athlete';
   const homeQuery = useAthleteHome({ enabled: isAthlete });
@@ -62,6 +63,8 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const isFirstRender = useRef(true);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+  const accountTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Move focus to the new page's content on client-side navigation, the way
@@ -79,6 +82,32 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
     setOpen(false);
     menuTriggerRef.current?.focus();
   };
+
+  const closeAccountMenu = () => {
+    setAccountMenuOpen(false);
+    accountTriggerRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (accountMenuRef.current?.contains(target) || accountTriggerRef.current?.contains(target)) return;
+      setAccountMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeAccountMenu();
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountMenuOpen]);
 
   useEffect(() => {
     if (!open) return;
@@ -110,6 +139,7 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
   }, [open]);
 
   const handleLogout = () => {
+    setAccountMenuOpen(false);
     logout.mutate(undefined, {
       onError: () => toast({ variant: 'destructive', title: "Couldn't sign out", description: 'Please try again.' }),
     });
@@ -118,7 +148,7 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
   return (
     <div className="min-h-screen min-h-[100dvh] bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[232px] flex-col bg-[hsl(var(--sidebar))] px-5 py-6 text-[hsl(var(--sidebar-foreground))] md:flex">
-        <FormaMark />
+        <FormaMark size="lg" />
         <div className="mt-14 flex flex-1 flex-col">
           <p className="forma-mono mb-4 px-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[hsl(var(--sidebar-foreground)/.56)]">Your space</p>
           <NavLinks role={user.role} />
@@ -136,8 +166,49 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
             </div>
           )}
         </div>
-        <div className="mt-5 border-t border-[hsl(var(--sidebar-border))] pt-5">
-          <div className="flex items-center gap-3">
+        <div className="relative mt-5 border-t border-[hsl(var(--sidebar-border))] pt-5">
+          {accountMenuOpen && (
+            <div
+              ref={accountMenuRef}
+              role="menu"
+              aria-label="Account menu"
+              className="absolute inset-x-0 bottom-full mb-2 overflow-hidden rounded-2xl border border-[hsl(var(--sidebar-border))] bg-[hsl(var(--sidebar))] shadow-lg"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  toggleTheme();
+                  closeAccountMenu();
+                }}
+                data-testid="button-toggle-theme"
+                className="flex min-h-11 w-full items-center gap-3 px-4 text-sm font-semibold text-[hsl(var(--sidebar-foreground)/.85)] hover:bg-[hsl(var(--sidebar-accent))]"
+              >
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={handleLogout}
+                disabled={logout.isPending}
+                data-testid="button-logout"
+                className="flex min-h-11 w-full items-center gap-3 border-t border-[hsl(var(--sidebar-border))] px-4 text-sm font-semibold text-[hsl(var(--sidebar-foreground)/.85)] hover:bg-[hsl(var(--sidebar-accent))] disabled:opacity-50"
+              >
+                <LogOut size={16} />
+                {logout.isPending ? 'Signing out…' : 'Sign out'}
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            ref={accountTriggerRef}
+            onClick={() => setAccountMenuOpen((current) => !current)}
+            aria-haspopup="menu"
+            aria-expanded={accountMenuOpen}
+            data-testid="button-account-menu"
+            className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-[hsl(var(--sidebar-accent))]"
+          >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--secondary))] text-sm font-bold text-[hsl(var(--secondary-foreground))]">
               {initialsFor(user.displayName)}
             </div>
@@ -145,28 +216,8 @@ export function AppShell({ user, children }: { user: PublicUser; children: React
               <p className="truncate text-sm font-semibold">{user.displayName}</p>
               <p className="truncate text-xs text-[hsl(var(--sidebar-foreground)/.56)]">{user.email}</p>
             </div>
-          </div>
-          <div className="mt-3 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-              data-testid="button-toggle-theme"
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))]"
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={logout.isPending}
-              aria-label="Sign out"
-              data-testid="button-logout"
-              className="flex h-11 w-11 items-center justify-center rounded-lg text-[hsl(var(--sidebar-foreground)/.6)] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-foreground))] disabled:opacity-50"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
+            <ChevronUp size={15} className={`shrink-0 text-[hsl(var(--sidebar-foreground)/.5)] transition-transform ${accountMenuOpen ? '' : 'rotate-180'}`} />
+          </button>
         </div>
       </aside>
 
