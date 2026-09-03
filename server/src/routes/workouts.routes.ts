@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { z } from "zod";
 import { logSetInputSchema } from "@forma/shared";
-import { requireAuth } from "../auth/middleware.js";
+import { requireAuth, requireRole } from "../auth/middleware.js";
 import {
   completeSession,
   getExerciseHistory,
@@ -11,12 +11,17 @@ import {
 } from "../services/workout.service.js";
 
 const router: IRouter = Router();
-router.use(requireAuth);
+// Applied per-route (not via a global router.use()) — this router is mounted
+// at the same path level as other route files (see routes/index.ts), and an
+// unscoped router.use(middleware) here would run for EVERY request that
+// reaches this router, including ones meant for a sibling router's routes,
+// before Express even checks whether a matching path exists below.
+const athleteOnly = [requireAuth, requireRole("athlete")] as const;
 
 const sessionIdParams = z.object({ sessionId: z.string().min(1) });
 const exerciseIdParams = z.object({ exerciseId: z.string().min(1) });
 
-router.get("/sessions/today", async (req, res): Promise<void> => {
+router.get("/sessions/today", ...athleteOnly, async (req, res): Promise<void> => {
   try {
     const session = await getTodaySessionDetail(req.session.userId!);
     if (!session) {
@@ -30,7 +35,7 @@ router.get("/sessions/today", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/sessions/:sessionId/start", async (req, res): Promise<void> => {
+router.post("/sessions/:sessionId/start", ...athleteOnly, async (req, res): Promise<void> => {
   const params = sessionIdParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid session id." });
@@ -49,7 +54,7 @@ router.post("/sessions/:sessionId/start", async (req, res): Promise<void> => {
   }
 });
 
-router.post("/sessions/:sessionId/complete", async (req, res): Promise<void> => {
+router.post("/sessions/:sessionId/complete", ...athleteOnly, async (req, res): Promise<void> => {
   const params = sessionIdParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid session id." });
@@ -68,7 +73,7 @@ router.post("/sessions/:sessionId/complete", async (req, res): Promise<void> => 
   }
 });
 
-router.post("/sessions/:sessionId/sets", async (req, res): Promise<void> => {
+router.post("/sessions/:sessionId/sets", ...athleteOnly, async (req, res): Promise<void> => {
   const params = sessionIdParams.safeParse(req.params);
   const body = logSetInputSchema.safeParse(req.body);
   if (!params.success) {
@@ -92,7 +97,7 @@ router.post("/sessions/:sessionId/sets", async (req, res): Promise<void> => {
   }
 });
 
-router.get("/exercises/:exerciseId/history", async (req, res): Promise<void> => {
+router.get("/exercises/:exerciseId/history", ...athleteOnly, async (req, res): Promise<void> => {
   const params = exerciseIdParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: "Invalid exercise id." });

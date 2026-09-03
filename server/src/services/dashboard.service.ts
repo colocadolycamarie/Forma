@@ -24,7 +24,7 @@ function greetingForHour(hour: number): "Good morning" | "Good afternoon" | "Goo
   return "Good evening";
 }
 
-async function computeStreakDays(userId: string): Promise<number> {
+export async function computeStreakDays(userId: string): Promise<number> {
   const completedDays = await db
     .select({ day: sql<string>`date_trunc('day', ${workoutSessionsTable.completedAt})` })
     .from(workoutSessionsTable)
@@ -47,7 +47,7 @@ async function computeStreakDays(userId: string): Promise<number> {
   return streak;
 }
 
-async function computeVolumeSince(userId: string, since: Date): Promise<number> {
+export async function computeVolumeSince(userId: string, since: Date): Promise<number> {
   const [row] = await db
     .select({ total: sql<number>`coalesce(sum(${loggedSetsTable.weight} * ${loggedSetsTable.reps}), 0)` })
     .from(loggedSetsTable)
@@ -56,7 +56,7 @@ async function computeVolumeSince(userId: string, since: Date): Promise<number> 
   return Number(row?.total ?? 0);
 }
 
-async function computeAdherencePercent(userId: string, since: Date): Promise<number> {
+export async function computeAdherencePercent(userId: string, since: Date): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`count(distinct date_trunc('day', ${workoutSessionsTable.completedAt}))` })
     .from(workoutSessionsTable)
@@ -162,4 +162,23 @@ export async function getAthleteHome(user: User): Promise<AthleteHome> {
     },
     insight: buildInsight(weeklyVolume, previousWeekVolume),
   };
+}
+
+/**
+ * Lightweight per-athlete stats for a coach's roster — deliberately does
+ * NOT call getTodaySessionDetail, since that has a side effect of creating
+ * "today's session" for the athlete. A coach viewing their roster should
+ * never silently generate training data on an athlete's behalf.
+ */
+export async function getAthleteSummary(userId: string): Promise<{ streakDays: number; weeklyVolume: number; adherencePercent: number }> {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const [streakDays, weeklyVolume, adherencePercent] = await Promise.all([
+    computeStreakDays(userId),
+    computeVolumeSince(userId, sevenDaysAgo),
+    computeAdherencePercent(userId, sevenDaysAgo),
+  ]);
+
+  return { streakDays, weeklyVolume: Math.round(weeklyVolume), adherencePercent };
 }

@@ -1,8 +1,16 @@
 import { boolean, integer, pgTable, real, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 /**
- * Registered athletes. Passwords are stored as bcrypt hashes only —
- * the plaintext password never reaches the database.
+ * Registered users. Passwords are stored as bcrypt hashes only — the
+ * plaintext password never reaches the database. `role` determines whether
+ * someone sees the athlete training log or the coach roster.
+ *
+ * `coachCode` is a short, shareable code generated only for coach accounts
+ * (an athlete enters it once to link themselves to that coach's roster).
+ * It is NOT a secret credential — it grants no access by itself beyond
+ * "add yourself to this coach's roster" — so a plain unique text code is an
+ * appropriate, low-friction invite mechanism without needing email
+ * delivery infrastructure.
  */
 export const usersTable = pgTable(
   "users",
@@ -11,10 +19,31 @@ export const usersTable = pgTable(
     email: text("email").notNull(),
     passwordHash: text("password_hash").notNull(),
     displayName: text("display_name").notNull(),
+    role: text("role").notNull().default("athlete"), // athlete | coach
+    coachCode: text("coach_code"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
     emailIdx: uniqueIndex("users_email_idx").on(table.email),
+    coachCodeIdx: uniqueIndex("users_coach_code_idx").on(table.coachCode),
+  }),
+);
+
+/** A coach ↔ athlete relationship, created when an athlete enters a coach's code. */
+export const coachLinksTable = pgTable(
+  "coach_links",
+  {
+    id: text("id").primaryKey(),
+    coachId: text("coach_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    athleteId: text("athlete_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    linkIdx: uniqueIndex("coach_links_coach_athlete_idx").on(table.coachId, table.athleteId),
   }),
 );
 
@@ -79,6 +108,7 @@ export const loggedSetsTable = pgTable("logged_sets", {
 
 export type User = typeof usersTable.$inferSelect;
 export type NewUser = typeof usersTable.$inferInsert;
+export type CoachLinkRow = typeof coachLinksTable.$inferSelect;
 export type ExerciseRow = typeof exercisesTable.$inferSelect;
 export type WorkoutSession = typeof workoutSessionsTable.$inferSelect;
 export type SessionExerciseRow = typeof sessionExercisesTable.$inferSelect;

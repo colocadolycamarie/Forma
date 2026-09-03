@@ -1,4 +1,4 @@
-import { CircleAlert, LoaderCircle, Sparkles } from 'lucide-react';
+import { CircleAlert, Dumbbell, LoaderCircle } from 'lucide-react';
 import { type ReactNode } from 'react';
 
 export function PageIntro({
@@ -52,7 +52,7 @@ export function EmptyBlock({ title, children, action }: { title: string; childre
   return (
     <div className="flex min-h-[240px] flex-col items-center justify-center rounded-3xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card)/.5)] p-8 text-center">
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))]">
-        <Sparkles size={20} />
+        <Dumbbell size={20} />
       </div>
       <p className="forma-display text-lg font-semibold">{title}</p>
       <p className="mt-2 max-w-sm text-sm leading-6 text-[hsl(var(--muted-foreground))]">{children}</p>

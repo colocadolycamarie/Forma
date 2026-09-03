@@ -57,7 +57,14 @@ export default function LoginPage() {
             required
           />
         </div>
-        <PasswordField label="Password" value={password} onChange={setPassword} autoComplete="current-password" />
+        <div>
+          <PasswordField label="Password" value={password} onChange={setPassword} autoComplete="current-password" />
+          <div className="mt-2 text-right">
+            <Link href="/forgot-password" className="text-xs font-semibold text-[hsl(var(--muted-foreground))] underline underline-offset-4 hover:text-[hsl(var(--foreground))]" data-testid="link-forgot-password">
+              Forgot password?
+            </Link>
+          </div>
+        </div>
 
         {formError && (
           <p role="alert" className="rounded-xl bg-[hsl(var(--destructive)/.1)] px-3 py-2.5 text-sm text-[hsl(var(--destructive-text))]">
@@ -69,7 +76,7 @@ export default function LoginPage() {
           type="submit"
           disabled={login.isPending}
           data-testid="button-submit-login"
-          className="mt-2 min-h-11 w-full rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] transition-transform duration-200 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60"
+          className="shadow-stamp-sm hover:shadow-stamp-md mt-2 min-h-11 w-full rounded-xl bg-[hsl(var(--primary))] text-sm font-semibold text-[hsl(var(--primary-foreground))] transition-all duration-200 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60"
         >
           {login.isPending ? 'Signing in…' : 'Sign in'}
         </button>

@@ -39,6 +39,11 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-destructive-border: var(--destructive-border);
 
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
@@ -78,21 +83,21 @@
   --elevate-1: rgba(0, 0, 0, 0.03);
   --elevate-2: rgba(0, 0, 0, 0.08);
 
-  --background: 42 31% 93%;
+  --background: 36 26% 91%;
 
   --foreground: 196 31% 16%;
 
-  --border: 40 18% 82%;
+  --border: 34 15% 78%;
 
-  --card: 42 33% 97%;
+  --card: 36 28% 96%;
 
   --card-foreground: 196 31% 16%;
 
-  --card-border: 40 18% 82%;
+  --card-border: 34 15% 78%;
 
   --sidebar: 197 28% 16%;
 
-  --sidebar-foreground: 42 31% 93%;
+  --sidebar-foreground: 36 26% 91%;
 
   --sidebar-border: 197 23% 25%;
 
@@ -102,42 +107,55 @@
 
   --sidebar-accent: 197 23% 25%;
 
-  --sidebar-accent-foreground: 42 31% 93%;
+  --sidebar-accent-foreground: 36 26% 91%;
 
   --sidebar-ring: 157 48% 57%;
 
-  --popover: 42 33% 97%;
+  --popover: 36 28% 96%;
 
   --popover-foreground: 196 31% 16%;
 
-  --popover-border: 40 18% 82%;
+  --popover-border: 34 15% 78%;
 
   --primary: 157 48% 44%;
   --primary-text: 157 48% 32%;
 
   --primary-foreground: 197 28% 16%;
 
-  --secondary: 32 45% 84%;
+  --secondary: 29 40% 79%;
 
   --secondary-foreground: 196 31% 16%;
 
-  --muted: 40 22% 88%;
+  --muted: 34 19% 85%;
 
   --muted-foreground: 197 14% 41%;
 
-  --accent: 14 73% 62%;
+  --accent: 17 70% 50%;
+  --accent-text: 17 70% 36%;
 
-  --accent-foreground: 42 33% 97%;
+  --accent-foreground: 36 28% 96%;
 
   --destructive: 4 64% 54%;
   --destructive-text: 4 64% 46%;
 
-  --destructive-foreground: 42 33% 97%;
+  --destructive-foreground: 36 28% 96%;
 
-  --input: 40 18% 82%;
+  /* Distinct from --primary on purpose: "confirmed/success" and "primary
+     action" read as the same color if they share a hue, which muddies the
+     stamp system below (a stamp means "logged," a plain primary button
+     means "do this next" — they should never look identical). */
+  --success: 150 46% 36%;
+  --success-text: 150 46% 28%;
+  --success-foreground: 36 28% 96%;
+
+  --warning: 32 78% 38%;
+  --warning-text: 32 78% 30%;
+  --warning-foreground: 36 28% 96%;
+
+  --input: 34 15% 78%;
   --ring: 157 48% 44%;
   --chart-1: 157 48% 44%;
-  --chart-2: 14 73% 62%;
+  --chart-2: 17 70% 50%;
   --chart-3: 32 45% 62%;
   --chart-4: 197 28% 32%;
   --chart-5: 44 72% 58%;
@@ -231,19 +249,19 @@
 
   --background: 197 28% 11%;
 
-  --foreground: 42 31% 93%;
+  --foreground: 36 26% 91%;
 
   --border: 197 23% 25%;
 
   --card: 197 25% 15%;
 
-  --card-foreground: 42 31% 93%;
+  --card-foreground: 36 26% 91%;
 
   --card-border: 197 23% 25%;
 
   --sidebar: 197 28% 9%;
 
-  --sidebar-foreground: 42 31% 93%;
+  --sidebar-foreground: 36 26% 91%;
 
   --sidebar-border: 197 23% 19%;
 
@@ -253,13 +271,13 @@
 
   --sidebar-accent: 197 23% 19%;
 
-  --sidebar-accent-foreground: 42 31% 93%;
+  --sidebar-accent-foreground: 36 26% 91%;
 
   --sidebar-ring: 157 48% 57%;
 
   --popover: 197 25% 15%;
 
-  --popover-foreground: 42 31% 93%;
+  --popover-foreground: 36 26% 91%;
 
   --popover-border: 197 23% 25%;
 
@@ -269,26 +287,35 @@
 
   --secondary: 197 23% 25%;
 
-  --secondary-foreground: 42 31% 93%;
+  --secondary-foreground: 36 26% 91%;
 
   --muted: 197 23% 19%;
 
   --muted-foreground: 197 12% 68%;
 
-  --accent: 14 73% 62%;
+  --accent: 17 70% 50%;
+  --accent-text: 17 75% 66%;
 
   --accent-foreground: 197 28% 16%;
 
   --destructive: 4 64% 60%;
   --destructive-text: 4 64% 67%;
 
-  --destructive-foreground: 42 33% 97%;
+  --destructive-foreground: 36 28% 96%;
+
+  --success: 150 42% 48%;
+  --success-text: 150 42% 62%;
+  --success-foreground: 197 28% 16%;
+
+  --warning: 32 70% 52%;
+  --warning-text: 32 70% 66%;
+  --warning-foreground: 197 28% 16%;
 
   /* Used as the border around inputs. Dark mode: Should be a border that is light enough to have high contrast when rendered on a --card background. More contrast than standard --border */
   --input: 197 23% 25%;
   --ring: 157 48% 57%;
   --chart-1: 157 48% 57%;
-  --chart-2: 14 73% 62%;
+  --chart-2: 17 70% 50%;
   --chart-3: 32 45% 62%;
   --chart-4: 197 12% 68%;
   --chart-5: 44 72% 58%;
@@ -360,6 +387,74 @@
   .stagger-3 { animation-delay: .15s; }
   .stagger-4 { animation-delay: .2s; }
   .stagger-5 { animation-delay: .25s; }
+
+  /* The stamp system (spec §1.4/§5): one shadow language, three
+     intensities, used only on confirmed/active/milestone states — never
+     as ambient page decoration. Nothing else in this file uses a soft
+     blurred shadow; this is the only shadow vocabulary Forma has. */
+  .shadow-stamp-sm { box-shadow: 2px 2px 0 hsl(var(--border)); }
+  .shadow-stamp-md { box-shadow: 4px 4px 0 hsl(var(--accent)); }
+  .shadow-stamp-lg { box-shadow: 6px 6px 0 hsl(var(--primary)); }
+
+  /* Ledger row divider — the one recurring "this is a logbook" detail,
+     used only for logged-set rows and history rows, nowhere else, so it
+     stays meaningful rather than decorative (spec §1.5). */
+  .ledger-divide > * + * { border-top: 1px dashed hsl(var(--border)); }
+  .ledger-divide-x > * + * { border-left: 1px dashed hsl(var(--border)); }
+
+  /* Field-ledger auth/dashboard redesign primitives — a faint ruled-paper
+     grid, a rotated ink-stamp badge, and a perforated tear edge. These
+     replace the photo-panel auth shell and card-grid dashboard with a
+     "logbook page" language: rules, stamps, tabular numerals, torn edges. */
+  .rule-field {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      hsl(var(--sidebar-foreground) / 0.07) 27px,
+      hsl(var(--sidebar-foreground) / 0.07) 28px
+    );
+  }
+  .rule-field-light {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      hsl(var(--foreground) / 0.06) 27px,
+      hsl(var(--foreground) / 0.06) 28px
+    );
+  }
+  .tear-edge {
+    -webkit-mask-image: radial-gradient(circle 5px at 5px 5px, transparent 5px, black 5.5px);
+    -webkit-mask-size: 14px 14px;
+    -webkit-mask-repeat: repeat-y;
+    mask-image: radial-gradient(circle 5px at 5px 5px, transparent 5px, black 5.5px);
+    mask-size: 14px 14px;
+    mask-repeat: repeat-y;
+  }
+  .tabular-figures { font-variant-numeric: tabular-nums; }
+  .stamp-rotate { transform: rotate(-3deg); }
+
+  @keyframes stamp-pulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  .animate-stamp { animation: stamp-pulse .22s ease-out; }
+
+  /* Ledger-scroll ticker (landing hero only) — a slow, continuous marquee
+     for the one-line strip of plain facts under the hero. Motion here is
+     deliberate and singular, not ambient: one ticker on one page. */
+  .animate-ledger-scroll { animation: ledger-scroll 32s linear infinite; }
+  @keyframes ledger-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-stamp { animation: none; }
+    .animate-ledger-scroll { animation: none; }
+  }
 }
 
 @keyframes rise-in {

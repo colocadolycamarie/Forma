@@ -159,7 +159,7 @@ export default function ProgressPage() {
           </div>
           <div className="mt-5 flex items-center justify-between border-t border-[hsl(var(--border))] pt-5">
             <span className="text-xs text-[hsl(var(--muted-foreground))]">{points.length} recorded efforts</span>
-            <span className={`inline-flex items-center gap-1 text-sm font-bold ${change >= 0 ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--accent))]'}`}>
+            <span className={`inline-flex items-center gap-1 text-sm font-bold ${change >= 0 ? 'text-[hsl(var(--primary-text))]' : 'text-[hsl(var(--accent-text))]'}`}>
               {change >= 0 ? <ArrowUpRight size={15} /> : <ArrowDownRight size={15} />}
               {Math.abs(change).toFixed(1)} kg since first
             </span>
@@ -184,6 +184,28 @@ export default function ProgressPage() {
           </section>
         </div>
       </div>
+
+      <section className="stagger-in mt-6 overflow-hidden rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+        <div className="flex items-center justify-between px-6 py-5">
+          <p className="forma-mono text-[10px] font-bold uppercase tracking-[.18em] text-[hsl(var(--muted-foreground))]">Full history · {history.exerciseName}</p>
+          <span className="forma-mono text-[10px] text-[hsl(var(--muted-foreground))]">{points.length} entries</span>
+        </div>
+        <div className="ledger-divide" data-testid="table-exercise-history">
+          <div className="grid grid-cols-[1fr_auto] gap-4 px-6 pb-2 text-[10px] font-semibold uppercase tracking-[.1em] text-[hsl(var(--muted-foreground))]">
+            <span>Date</span>
+            <span>Est. 1RM</span>
+          </div>
+          {[...points]
+            .slice()
+            .reverse()
+            .map((point, index) => (
+              <div key={`${point.date}-${index}`} className="grid grid-cols-[1fr_auto] items-center gap-4 px-6 py-3">
+                <span className="text-sm">{point.date}</span>
+                <span className="forma-mono text-sm font-semibold tabular-nums">{point.estimatedOneRepMax} kg</span>
+              </div>
+            ))}
+        </div>
+      </section>
     </div>
   );
 }

@@ -1,10 +1,9 @@
-import { ArrowUpRight, CalendarDays, Flame, Play } from 'lucide-react';
-import { Link, useLocation } from 'wouter';
+import { CalendarDays, Flame, Play } from 'lucide-react';
+import { Link } from 'wouter';
 import { useAthleteHome } from '@/hooks/use-training';
-import { EmptyBlock, ErrorBlock, LoadingBlock, Metric, PageIntro } from '@/components/page-states';
+import { EmptyBlock, ErrorBlock, LoadingBlock, PageIntro } from '@/components/page-states';
 
 export default function HomePage() {
-  const [, setLocation] = useLocation();
   const homeQuery = useAthleteHome();
   const home = homeQuery.data;
 
@@ -36,16 +35,42 @@ export default function HomePage() {
 
   const todayLabel = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
   const isCompleted = home.today.status === 'completed';
+  const yesterdayISO = new Date(Date.now() - 86_400_000).toDateString();
+  const yesterdayEntry = home.heatmap.find((day) => new Date(day.date).toDateString() === yesterdayISO);
+  const yesterdayMissed = Boolean(yesterdayEntry && yesterdayEntry.setsLogged === 0);
+
+  const ledgerStats = [
+    { label: 'Streak', value: `${home.streakDays}`, unit: 'days' },
+    { label: 'Weekly volume', value: home.weeklyVolume.toLocaleString(), unit: home.volumeUnit },
+    { label: 'Adherence', value: `${home.adherencePercent}`, unit: '%' },
+  ];
 
   return (
     <div>
-      <PageIntro eyebrow={todayLabel} title={`${home.greeting}.`}>
-        The work compounds quietly. Here's your view of the week so far.
-      </PageIntro>
+      {/* Dateline header — a ledger page opens with a date and a name, not
+          a card. Oversized greeting on the left, the day's three numbers
+          run as an inline entry row on the right, not three boxes. */}
+      <div className="stagger-in mb-7 flex flex-col gap-6 border-b border-dashed border-[hsl(var(--border))] pb-7 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="forma-mono mb-3 text-[10px] font-bold uppercase tracking-[.22em] text-[hsl(var(--primary-text))]">{todayLabel}</p>
+          <h1 className="forma-display text-[2.75rem] font-semibold leading-[.95] tracking-[-.06em] text-[hsl(var(--foreground))] sm:text-6xl">
+            {home.greeting}.
+          </h1>
+        </div>
+        <dl className="ledger-divide-x flex shrink-0 items-stretch" data-testid="ledger-stat-row">
+          {ledgerStats.map((stat) => (
+            <div key={stat.label} className="px-5 first:pl-0 last:pr-0">
+              <dt className="forma-mono text-[9px] font-semibold uppercase tracking-[.16em] text-[hsl(var(--muted-foreground))]">{stat.label}</dt>
+              <dd className="tabular-figures forma-display mt-1.5 whitespace-nowrap text-2xl font-semibold tracking-[-.04em]">
+                {stat.value}
+                <span className="ml-1 text-xs font-normal text-[hsl(var(--muted-foreground))]">{stat.unit}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
 
-      <section className="stagger-in stagger-1 relative mb-6 overflow-hidden rounded-[28px] bg-[hsl(var(--sidebar))] p-6 text-[hsl(var(--sidebar-foreground))] sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -right-20 -top-28 h-80 w-80 rounded-full border-[32px] border-[hsl(var(--sidebar-primary)/.18)]" />
-        <div className="pointer-events-none absolute bottom-[-110px] right-20 h-64 w-64 rounded-full border-[22px] border-[hsl(var(--accent)/.3)]" />
+      <section className="rule-field stagger-in stagger-1 relative mb-7 overflow-hidden rounded-[28px] bg-[hsl(var(--sidebar))] p-6 text-[hsl(var(--sidebar-foreground))] sm:p-8 lg:p-10">
         <div className="relative max-w-2xl">
           <div className="mb-8 flex items-center gap-2 text-[hsl(var(--sidebar-primary))]">
             <span className="h-2 w-2 rounded-full bg-current" />
@@ -61,32 +86,34 @@ export default function HomePage() {
             <Link
               href="/train"
               data-testid="link-start-today"
-              className="group inline-flex min-h-12 items-center gap-3 rounded-xl bg-[hsl(var(--sidebar-primary))] px-5 text-sm font-bold text-[hsl(var(--sidebar-primary-foreground))] transition-transform hover:-translate-y-0.5"
+              className="shadow-stamp-md inline-flex min-h-12 items-center gap-3 rounded-xl bg-[hsl(var(--sidebar-primary))] px-5 text-sm font-bold text-[hsl(var(--sidebar-primary-foreground))] transition-transform hover:-translate-y-0.5"
             >
               <Play size={16} fill="currentColor" />
               {isCompleted ? 'Review session' : 'Start session'}
-              <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </Link>
             <div className="flex items-center gap-4 text-xs text-[hsl(var(--sidebar-foreground)/.58)]">
               <span>{home.today.exerciseCount} movements</span>
             </div>
           </div>
         </div>
+        {/* Stamped corner tag — reads "logged" once a session is complete,
+            an actual ledger mark rather than decorative shapes. */}
+        {isCompleted && (
+          <div className="shadow-stamp-sm absolute right-7 top-7 hidden items-center gap-2 rounded-lg border border-[hsl(var(--sidebar-primary)/.4)] bg-[hsl(var(--sidebar-accent))] px-3 py-1.5 sm:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--sidebar-primary))]" />
+            <span className="forma-mono text-[10px] font-bold uppercase tracking-[.16em] text-[hsl(var(--sidebar-primary))]">Logged</span>
+          </div>
+        )}
       </section>
 
-      <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="stagger-in stagger-2">
-          <Metric label="Current streak" value={`${home.streakDays} days`} detail="Keep the chain alive" tone="orange" />
+      {yesterdayMissed && (
+        <div className="stagger-in mb-7 flex items-center gap-2.5 rounded-xl border border-dashed border-[hsl(var(--border))] px-4 py-3 text-xs text-[hsl(var(--muted-foreground))]" data-testid="badge-yesterday-missed">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full border border-[hsl(var(--muted-foreground)/.5)]" />
+          Yesterday: not logged — it's still in your history below, not hidden.
         </div>
-        <div className="stagger-in stagger-3">
-          <Metric label="Weekly volume" value={`${home.weeklyVolume.toLocaleString()} ${home.volumeUnit}`} detail="Last 7 days" tone="mint" />
-        </div>
-        <div className="stagger-in stagger-4">
-          <Metric label="Adherence" value={`${home.adherencePercent}%`} detail="Your planned rhythm" />
-        </div>
-      </section>
+      )}
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_.8fr]">
+      <div className="grid gap-7 lg:grid-cols-[1.5fr_.75fr]">
         <section className="stagger-in rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 sm:p-7">
           <div className="mb-7 flex items-start justify-between gap-4">
             <div>
@@ -101,46 +128,50 @@ export default function HomePage() {
               <span>More</span>
             </div>
           </div>
-          <div className="grid grid-cols-7 gap-2 sm:gap-3" data-testid="grid-training-heatmap">
-            {home.heatmap.slice(-28).map((day, index) => (
-              <div key={day.date} className="group flex flex-col items-center gap-2" data-testid={`heatmap-day-${index}`}>
-                <div
-                  className="relative flex h-10 w-full min-w-0 items-center justify-center rounded-lg transition-transform group-hover:-translate-y-1"
-                  style={{ backgroundColor: `hsl(var(--primary) / ${day.level === 0 ? 0.08 : 0.18 + day.level * 0.18})` }}
-                >
-                  <span className="forma-mono text-[10px] font-bold text-[hsl(var(--foreground)/.72)]">{day.setsLogged || '·'}</span>
+          <div className="rule-field-light -mx-1 grid grid-cols-7 gap-2 rounded-2xl px-1 py-3 sm:gap-3" data-testid="grid-training-heatmap">
+            {home.heatmap.slice(-28).map((day, index) => {
+              const isPast = new Date(day.date).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0);
+              const missed = isPast && day.level === 0;
+              return (
+                <div key={day.date} className="group flex flex-col items-center gap-2" data-testid={`heatmap-day-${index}`}>
+                  <div
+                    title={missed ? 'Not logged' : undefined}
+                    className={`relative flex h-10 w-full min-w-0 items-center justify-center rounded-lg transition-transform group-hover:-translate-y-1 ${
+                      missed ? 'border border-dashed border-[hsl(var(--muted-foreground)/.35)]' : ''
+                    }`}
+                    style={{ backgroundColor: missed ? 'transparent' : `hsl(var(--primary) / ${day.level === 0 ? 0.08 : 0.18 + day.level * 0.18})` }}
+                  >
+                    <span className="forma-mono text-[10px] font-bold text-[hsl(var(--foreground)/.72)]">{day.setsLogged || (missed ? '–' : '·')}</span>
+                  </div>
+                  <span className="forma-mono text-[9px] text-[hsl(var(--muted-foreground))]">
+                    {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2)}
+                  </span>
                 </div>
-                <span className="forma-mono text-[9px] text-[hsl(var(--muted-foreground))]">
-                  {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-7 flex items-center gap-3 border-t border-[hsl(var(--border))] pt-5 text-xs text-[hsl(var(--muted-foreground))]">
             <CalendarDays size={15} />
             <span>Sets logged over the last 4 weeks</span>
           </div>
         </section>
-        <section className="stagger-in stagger-2 relative overflow-hidden rounded-3xl bg-[hsl(var(--secondary))] p-6 sm:p-7">
-          <div className="absolute -right-5 -top-5 text-[hsl(var(--secondary-foreground)/.1)]">
-            <Flame size={130} strokeWidth={1} />
-          </div>
-          <div className="relative">
-            <p className="forma-mono text-[10px] font-bold uppercase tracking-[.18em] text-[hsl(var(--secondary-foreground)/.75)]">Today's insight</p>
-            <p className="forma-display mt-7 text-2xl font-semibold leading-tight tracking-[-.05em]" data-testid="text-daily-insight">
-              "{home.insight}"
-            </p>
+
+        {/* Insight panel styled as an index card using the same
+            stamp-shadow language as the auth ledger panel, kept level
+            (no rotation) rather than an off-square block. */}
+        <section className="stagger-in stagger-2 flex items-start justify-center">
+          <div className="shadow-stamp-md relative w-full max-w-[280px] overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--secondary))] p-6">
+            <div className="absolute -right-4 -top-4 text-[hsl(var(--secondary-foreground)/.1)]">
+              <Flame size={110} strokeWidth={1} />
+            </div>
+            <div className="relative">
+              <p className="forma-mono text-[10px] font-bold uppercase tracking-[.18em] text-[hsl(var(--secondary-foreground)/.75)]">Today's insight</p>
+              <p className="forma-display mt-6 text-xl font-semibold leading-tight tracking-[-.04em]" data-testid="text-daily-insight">
+                "{home.insight}"
+              </p>
+            </div>
           </div>
         </section>
-      </div>
-      <div className="mt-7 flex justify-end">
-        <button
-          onClick={() => setLocation('/progress')}
-          data-testid="button-view-progress"
-          className="group inline-flex items-center gap-2 text-sm font-semibold text-[hsl(var(--foreground))] hover:text-[hsl(var(--primary))]"
-        >
-          See your progress <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </button>
       </div>
     </div>
   );

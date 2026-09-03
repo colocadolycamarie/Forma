@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { loginInputSchema, signupInputSchema, type PublicUser } from "@forma/shared";
+import { loginInputSchema, signupInputSchema, type PublicUser, type UserRole } from "@forma/shared";
 import { db } from "../db/client.js";
 import { usersTable } from "../db/schema.js";
 import { hashPassword, verifyPassword } from "../auth/password.js";
@@ -9,11 +9,12 @@ import { requireAuth } from "../auth/middleware.js";
 
 const router: IRouter = Router();
 
-function toPublicUser(user: { id: string; email: string; displayName: string; createdAt: Date }): PublicUser {
+function toPublicUser(user: { id: string; email: string; displayName: string; role: string; createdAt: Date }): PublicUser {
   return {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
+    role: user.role as UserRole,
     createdAt: user.createdAt.toISOString(),
   };
 }
@@ -25,7 +26,7 @@ router.post("/signup", async (req, res): Promise<void> => {
     return;
   }
 
-  const { email, password, displayName } = parsed.data;
+  const { email, password, displayName, role } = parsed.data;
 
   const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email)).limit(1);
   if (existing) {
@@ -35,7 +36,7 @@ router.post("/signup", async (req, res): Promise<void> => {
 
   const passwordHash = await hashPassword(password);
   const id = randomUUID();
-  await db.insert(usersTable).values({ id, email, passwordHash, displayName });
+  await db.insert(usersTable).values({ id, email, passwordHash, displayName, role });
 
   req.session.userId = id;
   const [created] = await db.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
