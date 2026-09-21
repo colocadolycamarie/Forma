@@ -65,19 +65,6 @@ export default function LandingPage() {
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[hsl(var(--sidebar)/.78)] via-[hsl(var(--sidebar)/.4)] to-transparent" />
 
-        {/* Marginalia: a running vertical label along the right edge,
-            intentionally cropped by the frame — a small nod to the
-            page-margin notation of an actual logbook, not decoration. */}
-        <div
-          className="pointer-events-none absolute right-4 top-1/2 hidden -translate-y-1/2 lg:block"
-          style={{ writingMode: 'vertical-rl' }}
-          aria-hidden="true"
-        >
-          <span className="forma-mono whitespace-nowrap text-[10px] font-bold uppercase tracking-[.32em] text-[hsl(var(--sidebar-foreground)/.5)]">
-            Forma — a training log
-          </span>
-        </div>
-
         <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-12 pt-28 sm:px-8 sm:pb-14 sm:pt-32 lg:px-12 lg:pb-16 lg:pt-36">
           <div className="lg:flex lg:items-end lg:gap-12">
             <h1 className="forma-display stagger-in stagger-1 text-[12vw] font-semibold leading-[.9] tracking-[-.05em] text-[hsl(var(--sidebar-foreground))] sm:text-6xl lg:max-w-[58%] lg:text-[5rem] xl:text-[5.75rem]">

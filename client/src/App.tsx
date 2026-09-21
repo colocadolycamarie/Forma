@@ -7,7 +7,6 @@ import { ThemeProvider } from '@/hooks/use-theme';
 import { AppShell } from '@/components/app-shell';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
-import { SplashScreen } from '@/components/splash-screen';
 import LandingPage from '@/pages/landing';
 import LoginPage from '@/pages/login';
 import SignupPage from '@/pages/signup';
@@ -36,7 +35,7 @@ function AuthGate({ children }: { children: (user: PublicUser) => ReactNode }) {
   const [location] = useLocation();
 
   if (isLoading) {
-    return <SplashScreen />;
+    return null;
   }
 
   if (!user) {
@@ -96,7 +95,7 @@ function AuthenticatedApp() {
 
 function GuestOnly({ children }: { children: ReactNode }) {
   const { data: user, isLoading } = useCurrentUser();
-  if (isLoading) return <SplashScreen />;
+  if (isLoading) return null;
   if (user) return <Redirect to="/" />;
   return <>{children}</>;
 }
@@ -107,7 +106,7 @@ function GuestOnly({ children }: { children: ReactNode }) {
 // centered utility moment like Login/Signup, not a place someone browses.
 function RequireAuthNoShell({ children }: { children: ReactNode }) {
   const { data: user, isLoading } = useCurrentUser();
-  if (isLoading) return <SplashScreen />;
+  if (isLoading) return null;
   if (!user) return <Redirect to="/login" />;
   return <>{children}</>;
 }
